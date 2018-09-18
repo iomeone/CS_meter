@@ -8,6 +8,12 @@ demo_id, and also scrapes hltv.org to find recent demo_ids of 1 star (or more)
 pro matches.
 
 Written by Neil Bostian 9/17/2018
+
+Update 9/18/2018 - Hltv appears to have since blacklisted the user-agent for
+requests 2.19.1. This can be circumvented by setting a custom user-agent header
+for the outgoing requests in this script however at this point in time I have
+enough demos downloaded that I won't be making that change. Update at your own
+risk.
 '''
 
 import os
@@ -41,6 +47,7 @@ class DemoScraper():
         Downloads a .rar for a matchup to download_dir/demo_id.rar
 
         @param demo_id: int -> ID used in the demo download URL
+
         @returns rar_download_path: str -> the path where .rar file was saved
         '''
         
