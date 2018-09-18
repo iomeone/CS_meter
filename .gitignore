@@ -1,3 +1,6 @@
+# From https://github.com/github/gitignore/blob/master/Python.gitignore
+# Modified with VS Code extensions at the bottom
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -109,3 +112,10 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# VSCode extensions from https://github.com/github/gitignore/blob/master/Global/VisualStudioCode.gitignore
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
