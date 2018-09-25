@@ -25,13 +25,16 @@ _Demos are downloaded as .rar files, the following packages are used to download
     - `sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-bionic-prod bionic main" > /etc/apt/sources.list.d/dotnetdev.list'`
     - `sudo apt-get update`
     - `sudo apt-get install dotnet-sdk-2.1.105`
-2. `cd parse-demos`
+2. `cd src/parse-demos`
 3. `dotnet restore` _# Restores dotnet packages from nuget as they aren't included in git_
 4. `dotnet build -c Release` _# Build release configuration of parse-demos_
-5. `dotnet bin/Release/netcoreapp2.0/parse-demos.dll <demo-directory> <csv-output-directory>`
+5. `dotnet bin/Release/netcoreapp2.0/parse-demos.dll <demo-directory> ../../csv/individual-matches/`
     - _# This parser requires 2 positional arguments_
     - _\<demo-directory\> The input directory of demo files to be parsed. Likely the directory from step 1: `download_demos.py`_
-    - _\<csv-output-directory\> The output directory of csv files from parsed demos. Can be the same as input directory. parse-demos will not overwrite csv files which already exist, it will instead skip parsing the demo file entirely_
+    - _`../../csv/individual-matches` The output directory of csv files from parsed demos. Can be the same as input directory. parse-demos will not overwrite csv files which already exist, it will instead skip parsing the demo file entirely_
+6. `cd /csv` _# The output from step 5 should be in /csv/individual-matches. The git repo should contain a sample of match csv files_
+7. `python merge_csv.py` _# Merges all csv files in the individual-matches directory to a single file, /csv/all_data.csv_
+
 
 ---
 
