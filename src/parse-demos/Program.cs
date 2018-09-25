@@ -64,7 +64,20 @@ namespace parse_demos
                     jobs.RemoveAt(i);
                 }
 
-                jobs.Add(GetResultsFromDemo(demo, newFilePath));
+                // The memory steram gets disposed by each individual task, so won't use a `using` block for it.
+                var ms = new MemoryStream();
+
+                using (var fs = demo.Open(FileMode.Open))
+                {
+                    Console.WriteLine("Reading demo file " + demo.Name);
+
+                    fs.CopyTo(ms);
+                    ms.Position = 0;
+
+                    Console.WriteLine("Parsing demo file " + demo.Name);
+
+                    jobs.Add(GetResultsFromDemo(ms, newFilePath));
+                }
             }
 
             Task.WaitAll(jobs.ToArray());
@@ -73,17 +86,30 @@ namespace parse_demos
         private static IEnumerable<FileInfo> GetDemoFiles(DirectoryInfo directory)
             => directory.EnumerateFiles().Where(d => Path.GetExtension(d.Name).Equals(".dem"));
 
-        private static Task GetResultsFromDemo(FileInfo demoFile, string outputFile)
+        private static Task GetResultsFromDemo(MemoryStream inputStream, string outputFile)
             => Task.Factory.StartNew(() =>
             {
-                var ms = new MatchScanner(demoFile.FullName);
-                var lst = ms.EnumerateTrainingResults().ToList();
-
-                using (var fs = new FileStream(outputFile, FileMode.Create))
-                using (var sw = new StreamWriter(fs))
+                try
                 {
-                    var serializer = new CsvWriter(sw);
-                    serializer.WriteRecords(lst);
+                    using (var ms = new MatchScanner(inputStream))
+                    {
+                        var lst = ms.EnumerateTrainingResults().ToList();
+
+                        using (var outputStream = new FileStream(outputFile, FileMode.Create))
+                        using (var outputWriter = new StreamWriter(outputStream))
+                        {
+                            var serializer = new CsvWriter(outputWriter);
+                            serializer.WriteRecords(lst);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Unhandled exception -> " + e.GetType().ToString() + ": " + e.Message);
+                }
+                finally
+                {
+                    inputStream.Dispose();
                 }
             }, TaskCreationOptions.LongRunning);
     }

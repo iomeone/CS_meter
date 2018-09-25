@@ -19,7 +19,6 @@ using DemoInfo;
 
 public class MatchScanner : IDisposable
 {
-    private FileInfo _sourceFile;
     private DemoParser _demoParser;
     private Stream _parserStream;
 
@@ -56,16 +55,9 @@ public class MatchScanner : IDisposable
     // opportunity of our enumerator.
     private List<TrainingResult> yieldResults = new List<TrainingResult>();
 
-    public MatchScanner(string demoFilePath)
+    public MatchScanner(Stream inputDemoStream)
     {
-        _sourceFile = new FileInfo(demoFilePath);
-
-        if (!_sourceFile.Exists)
-        {
-            throw new FileNotFoundException("Demo file was not found.", demoFilePath);
-        }
-
-        _parserStream = _sourceFile.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+        _parserStream = inputDemoStream;
         _demoParser = new DemoParser(_parserStream);
 
         _demoParser.ParseHeader();
@@ -92,8 +84,13 @@ public class MatchScanner : IDisposable
         {
             if (snapshotResultThisTick)
             {
-                partialResults.Add(SnapshotCurrentResult());
-                Console.WriteLine("Snapshot. currentTick=" + currentTick + ", numPartialResults=" + partialResults.Count);
+                var result = SnapshotCurrentResult();
+
+                if (result != null)
+                {
+                    partialResults.Add(result);
+                    // Console.WriteLine("Snapshot. currentTick=" + currentTick + ", numPartialResults=" + partialResults.Count);
+                }
             }
 
             foreach (var v in yieldResults)
@@ -115,6 +112,7 @@ public class MatchScanner : IDisposable
         if (cts.Length != 5 || ts.Length != 5)
         {
             Console.WriteLine("Not 5 players on a team!");
+            return null;
         }
 
         TrainingResult result = new TrainingResult()
@@ -220,17 +218,17 @@ public class MatchScanner : IDisposable
 
     private void OnFreezetimeEnded(object sender, FreezetimeEndedEventArgs args)
     {
+        // Console.WriteLine($"Round {roundNumber} started, tick " + currentTick);
+
         roundNumber++;
         isBombPlanted = false;
         bombPlantTotalElapsedTicks = 0;
         isRoundOver = false;
-
-        Console.WriteLine($"Round {roundNumber} started, tick " + currentTick);
     }
 
     private void OnRoundEnded(object sender, RoundEndedEventArgs args)
     {
-        Console.WriteLine($"Round {roundNumber} ended, tick " + currentTick + ", reason " + args.Reason.ToString());
+        // Console.WriteLine($"Round {roundNumber} ended, tick " + currentTick + ", reason " + args.Reason.ToString());
 
         foreach (var trainingResult in partialResults)
         {
@@ -249,7 +247,7 @@ public class MatchScanner : IDisposable
 
     private void OnBombPlanted(object sender, BombEventArgs args)
     {
-        Console.WriteLine($"Bomb planted, round={roundNumber}, currentTick={currentTick}, site={args.Site}, player={args.Player.Name}");
+        // Console.WriteLine($"Bomb planted, round={roundNumber}, currentTick={currentTick}, site={args.Site}, player={args.Player.Name}");
 
         isBombPlanted = true;
         bombPlantedTick = _demoParser.CurrentTick;
@@ -259,7 +257,7 @@ public class MatchScanner : IDisposable
 
     private void OnBombExploded(object sender, BombEventArgs args)
     {
-        Console.WriteLine($"Bomb exploded, round={roundNumber}, currentTick={currentTick}");
+        // Console.WriteLine($"Bomb exploded, round={roundNumber}, currentTick={currentTick}");
 
         isBombPlanted = false;
         bombPlantedTick = 0;
@@ -268,7 +266,7 @@ public class MatchScanner : IDisposable
 
     private void OnBombDefused(object sender, BombEventArgs args)
     {
-        Console.WriteLine($"Bomb defused, round={roundNumber}, currentTick={currentTick}");
+        // Console.WriteLine($"Bomb defused, round={roundNumber}, currentTick={currentTick}");
 
         isBombPlanted = false;
         bombPlantedTick = 0;
