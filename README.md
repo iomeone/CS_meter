@@ -46,3 +46,4 @@ Details of .dem file structure can be found in these repos which implement demo 
 * Valve Official, C++ - https://github.com/ValveSoftware/csgo-demoinfo
 * Unofficial, Python - https://github.com/Bakkes/demoinfo-csgo-python
 * Unofficial, C# *appears to have good support, using this to generate training data - https://github.com/StatsHelix/demoinfo
+* https://github.com/tgjeon/TensorFlow-Tutorials-for-Time-Series
